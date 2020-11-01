@@ -1,10 +1,10 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { ResponseError } from "shared/classes/response-error";
+import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
+import { productsService } from "../shared/services/products";
+import { ResponseError } from "../shared/classes/response-error";
 
-import { Products } from '../data/products';
-import { Product } from "../shared/models/product";
+import { HEADERS } from "../shared/constants/headers";
 
-export const getProductById: APIGatewayProxyHandler = async (event) => {
+export const getProductById = async (event: APIGatewayProxyEvent) => {
 
     try {
 
@@ -17,7 +17,7 @@ export const getProductById: APIGatewayProxyHandler = async (event) => {
             });
         }
 
-        const product = await getProductByIdFromDB(id);
+        const product = await productsService.getProductByIdFromDB(+id);
 
         if (!product) {
             throw new ResponseError({
@@ -27,18 +27,19 @@ export const getProductById: APIGatewayProxyHandler = async (event) => {
         }
 
         return {
+            headers: HEADERS,
             statusCode: 200,
             body: JSON.stringify(product)
         };
 
     } catch(err) {
         return {
-            statusCode: err.code,
-            body: err.message
+            statusCode: err.code || 500,
+            body: err.message || 'Internal Server Error'
         };
     }
 };
 
-async function getProductByIdFromDB(id): Promise<Product> {
-    return Products.find(prod => prod.id === id);
-}
+export const getProductByIdHandler: APIGatewayProxyHandler = async (event) => {
+    return getProductById(event);
+};

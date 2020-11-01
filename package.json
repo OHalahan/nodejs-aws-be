@@ -4,7 +4,7 @@
   "description": "Node.js AWS product service",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "echo \"Error: tests are specified in the 'product-service' directory\" && exit 1"
   },
   "repository": {
     "type": "git",

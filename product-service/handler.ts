@@ -1,7 +1,7 @@
-import { getProductById } from "handlers/getProductById";
-import { getProductsList } from "handlers/getProductsList";
+import { getProductByIdHandler } from "./handlers/getProductById";
+import { getProductsListHandler } from "./handlers/getProductsList";
 
 export {
-  getProductsList,
-  getProductById
+  getProductsListHandler,
+  getProductByIdHandler
 }

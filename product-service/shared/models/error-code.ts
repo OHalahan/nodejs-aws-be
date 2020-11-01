@@ -1,1 +1,1 @@
-export type ErrorCode = 400 | 404 | 500 | 200;
+export type ErrorCode = 400 | 404 | 500;

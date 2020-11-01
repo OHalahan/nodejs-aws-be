@@ -1,4 +1,4 @@
-import { ErrorCode } from "shared/models/error-code";
+import { ErrorCode } from "../models/error-code";
 
 export class ResponseError extends Error {
     code: ErrorCode;
