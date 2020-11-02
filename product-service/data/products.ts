@@ -8,6 +8,7 @@ export const Products: Product[] = [
       price: 26200,
       imageUrl:
         'https://luxwatch.ua/images/gallery/47346/1-b.jpg',
+      count: 5
     },
     {
       id: 2,
@@ -16,6 +17,7 @@ export const Products: Product[] = [
       price: 44200,
       imageUrl:
         'https://luxwatch.ua/images/gallery/55671/hublot-403-ci-0140-rx_image-01.jpg',
+      count: 25
     },
     {
       id: 3,
@@ -23,6 +25,7 @@ export const Products: Product[] = [
       description: 'Hublot Big Bang Aero Bang',
       price: 20300,
       imageUrl: 'https://luxwatch.ua/images/gallery/32892/hublot-big-bang-aero-bang-black-magic.jpg',
+      count: 3
     },
   ];
   

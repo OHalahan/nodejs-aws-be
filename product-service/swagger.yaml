@@ -66,6 +66,7 @@ definitions:
     - imageUrl
     - price
     - title
+    - count
     properties:
       id:
         type: number
@@ -82,3 +83,6 @@ definitions:
       price:
         type: number
         example: 44200.0
+      count:
+        type: number
+        example: 22
