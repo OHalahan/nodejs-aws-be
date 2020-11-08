@@ -1,36 +1,21 @@
-import {APIGatewayProxyHandler} from "aws-lambda";
-import { HEADERS } from "../shared/constants/headers";
-import { ResponseError } from "../shared/classes/response-error";
-import { productsService } from "../shared/services/products";
+import {APIGatewayProxyHandler} from 'aws-lambda';
+import {productsService} from '../shared/services/products';
+import {RESPONSE} from '../shared/constants/responses';
 
 export const getProductsList = async () => {
+  try {
+    const ProductsList = await productsService.getProductsFromDB();
 
-    try {
-
-        const ProductsList = await productsService.getProductsFromDB();
-
-        if (!ProductsList || !ProductsList.length) {
-            throw new ResponseError({
-                message: 'Products not found',
-                code: 404
-            });
-        } else {
-            return {
-                headers: HEADERS,
-                statusCode: 200,
-                body: JSON.stringify(ProductsList),
-            };
-        }
-
-    } catch(err) {
-        return {
-            statusCode: err.code || 500,
-            body: err.message || 'Internal Server Error'
-        };
+    if (!ProductsList || !ProductsList.length) {
+      return RESPONSE._404('Products not found');
+    } else {
+      return RESPONSE._200(ProductsList);
     }
+  } catch (err) {
+    return RESPONSE._500('Internal Server Error');
+  }
 };
 
-
 export const getProductsListHandler: APIGatewayProxyHandler = async () => {
-    return getProductsList();
+  return getProductsList();
 };

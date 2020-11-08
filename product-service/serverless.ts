@@ -2,14 +2,14 @@ import type { Serverless } from 'serverless/aws';
 
 const serverlessConfiguration: Serverless = {
   service: {
-    name: 'product-service'
+    name: 'product-service',
   },
   frameworkVersion: '2',
   custom: {
     webpack: {
       webpackConfig: './webpack.config.js',
-      includeModules: true
-    }
+      includeModules: true,
+    },
   },
   // Add the serverless-webpack plugin
   plugins: ['serverless-webpack'],
@@ -34,9 +34,9 @@ const serverlessConfiguration: Serverless = {
             method: 'get',
             path: '/products',
             cors: true,
-          }
-        }
-      ]
+          },
+        },
+      ],
     },
     getProductById: {
       handler: 'handler.getProductByIdHandler',
@@ -45,12 +45,12 @@ const serverlessConfiguration: Serverless = {
           http: {
             method: 'get',
             path: '/products/{id}',
-            cors: true
+            cors: true,
           },
         },
       ],
     },
-  }
-}
+  },
+};
 
 module.exports = serverlessConfiguration;

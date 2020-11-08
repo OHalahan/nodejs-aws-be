@@ -1,45 +1,28 @@
-import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
-import { productsService } from "../shared/services/products";
-import { ResponseError } from "../shared/classes/response-error";
+import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
+import { productsService } from '../shared/services/products';
 
-import { HEADERS } from "../shared/constants/headers";
+import {RESPONSE} from '../shared/constants/responses';
 
 export const getProductById = async (event: APIGatewayProxyEvent) => {
+  try {
+    const { id } = event.pathParameters || {};
 
-    try {
-
-        const { id } = event.pathParameters || {};
-
-        if (id === null || id === undefined || id === '') {
-            throw new ResponseError({
-                message: 'No ID provided',
-                code: 400
-            });
-        }
-
-        const product = await productsService.getProductByIdFromDB(+id);
-
-        if (!product) {
-            throw new ResponseError({
-                message: 'Product not found',
-                code: 404
-            });
-        }
-
-        return {
-            headers: HEADERS,
-            statusCode: 200,
-            body: JSON.stringify(product)
-        };
-
-    } catch(err) {
-        return {
-            statusCode: err.code || 500,
-            body: err.message || 'Internal Server Error'
-        };
+    if (id === null || id === undefined || id === '') {
+      return RESPONSE._400('No ID provided');
     }
+
+    const product = await productsService.getProductByIdFromDB(+id);
+
+    if (!product) {
+      return RESPONSE._404('Product not found');
+    }
+
+    return RESPONSE._200(product);
+  } catch (err) {
+    return RESPONSE._500('Internal Server Error');
+  }
 };
 
-export const getProductByIdHandler: APIGatewayProxyHandler = async (event) => {
-    return getProductById(event);
+export const getProductByIdHandler: APIGatewayProxyHandler = async event => {
+  return getProductById(event);
 };

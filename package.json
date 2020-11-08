@@ -4,7 +4,9 @@
   "description": "Node.js AWS product service",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: tests are specified in the 'product-service' directory\" && exit 1"
+    "test": "echo \"Error: tests are specified in the 'product-service' directory\" && exit 1",
+    "format": "prettier --write \"./**/*.ts\"",
+    "lint": "eslint \"./**/*.ts\" --fix"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,18 @@
   "bugs": {
     "url": "https://github.com/OHalahan/nodejs-aws-be/issues"
   },
-  "homepage": "https://github.com/OHalahan/nodejs-aws-be#readme"
+  "homepage": "https://github.com/OHalahan/nodejs-aws-be#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "@typescript-eslint/parser": "^3.7.1",
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-typescript": "^9.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.0.5",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^3.9.7"
+  }
 }

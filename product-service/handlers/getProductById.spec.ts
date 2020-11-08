@@ -2,7 +2,7 @@ import createEvent from '@serverless/event-mocks';
 import { productsService } from '../shared/services/products';
 import { Product } from '../shared/models/product';
 import { getProductById } from './getProductById';
-import { HEADERS } from '../shared/constants/headers';
+import {RESPONSE} from '../shared/constants/responses';
 
 describe('getProductById handler', () => {
   describe('id is present', () => {
@@ -18,18 +18,15 @@ describe('getProductById handler', () => {
         description: 'test',
         title: 'test',
         imageUrl: 'test.com',
-        price: 77000
+        price: 77000,
+        count: 2,
       };
 
       spyOn(productsService, 'getProductByIdFromDB').and.returnValue(product);
 
       const result = await getProductById(mockEvent);
 
-      expect(result).toMatchObject({
-        body: JSON.stringify(product),
-        headers: HEADERS,
-        statusCode: 200
-      });
+      expect(result).toMatchObject(RESPONSE._200(product));
     });
   });
 
@@ -39,7 +36,7 @@ describe('getProductById handler', () => {
         pathParameters: {},
       } as any);
 
-      expect(await getProductById(mockEvent)).toMatchObject({body: "No ID provided", statusCode: 400});
+      expect(await getProductById(mockEvent)).toMatchObject(RESPONSE._400('No ID provided'));
     });
   });
 });
