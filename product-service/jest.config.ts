@@ -7,7 +7,7 @@ const config: Config.InitialOptions = {
   moduleDirectories: ['node_modules'],
   moduleNameMapper: {
     'data/(.*)': '<rootDir>/data/$1',
-    'lib/shared/(.*)': '<rootDir>/shared/$1'
+    'lib/shared/(.*)': '<rootDir>/shared/$1',
   },
 };
 
