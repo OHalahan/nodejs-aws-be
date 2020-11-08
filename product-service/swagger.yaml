@@ -1,0 +1,88 @@
+---
+swagger: 2.0
+info:
+  description: This is a simple API
+  version: 1.0.0
+  title: Simple Inventory API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+host: virtserver.swaggerhub.com
+basePath: /OHalahan/product-service/1.0.0
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+schemes:
+- https
+paths:
+  /products:
+    get:
+      summary: gets all products
+      operationId: getAllProducts
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: all available products
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
+        "404":
+          description: Products not found
+  /products/{productId}:
+    get:
+      summary: gets particular product by product ID
+      description: returns single product
+      operationId: searchById
+      produces:
+      - application/json
+      parameters:
+      - name: productId
+        in: path
+        description: ID of product to return (number)
+        required: true
+        type: string
+      responses:
+        "200":
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Product'
+        "400":
+          description: No ID provided
+        "404":
+          description: Product not found
+definitions:
+  Product:
+    type: object
+    required:
+    - description
+    - id
+    - imageUrl
+    - price
+    - title
+    - count
+    properties:
+      id:
+        type: number
+        example: 2.0
+      description:
+        type: string
+        example: Very special watch
+      imageUrl:
+        type: string
+        example: https://luxwatch.ua/images/gallery/55671/hublot-403-ci-0140-rx_image-01.jpg,
+      title:
+        type: string
+        example: Hublot Big Bang Alarm Repeater
+      price:
+        type: number
+        example: 44200.0
+      count:
+        type: number
+        example: 22
