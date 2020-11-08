@@ -1,17 +1,18 @@
-import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
-import { productsService } from '../shared/services/products';
-
+import {APIGatewayProxyEvent, APIGatewayProxyHandler} from 'aws-lambda';
+import {productsService} from '../shared/services/products';
 import {RESPONSE} from '../shared/constants/responses';
 
 export const getProductById = async (event: APIGatewayProxyEvent) => {
   try {
-    const { id } = event.pathParameters || {};
+    console.log('GET Product By ID: ', event);
+
+    const {id} = event.pathParameters || {};
 
     if (id === null || id === undefined || id === '') {
       return RESPONSE._400('No ID provided');
     }
 
-    const product = await productsService.getProductByIdFromDB(+id);
+    const product = await productsService.getProductByIdFromDB(String(id));
 
     if (!product) {
       return RESPONSE._404('Product not found');
