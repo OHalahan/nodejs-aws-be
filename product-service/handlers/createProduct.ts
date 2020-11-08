@@ -7,14 +7,29 @@ export const createProduct = async (event: APIGatewayProxyEvent) => {
   try {
     console.log('CREATE Product: ', event);
 
-    const {title, description, count, price} = JSON.parse(event.body) as Product;
+    const {title, description, price, count} = JSON.parse(event.body) as Product;
+    const imageUrl = 'https://source.unsplash.com/random'; // hardcoded for now
 
-    const product = await productsService.createProductInDB(title, description, +count, +price);
+    if (typeof title !== 'string' || !title.length) {
+      return RESPONSE._400('Title is invalid');
+    }
 
-    console.log(product);
+    if (typeof description !== 'string' || !description.length) {
+      return RESPONSE._400('Description is invalid');
+    }
+
+    if (!price || isNaN(+price)) {
+      return RESPONSE._400('Price is invalid');
+    }
+
+    if (!count || isNaN(+count)) {
+      return RESPONSE._400('Count is invalid');
+    }
+
+    const product = await productsService.createProductInDB(title, description, +price, imageUrl, +count);
 
     if (!product) {
-      return RESPONSE._404('Product not found');
+      return RESPONSE._500('Failed to create product');
     }
 
     return RESPONSE._200(product);

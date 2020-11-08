@@ -2,6 +2,11 @@ import {Product} from '../../models/product';
 import {Client} from 'pg';
 import {DB_CONFIG} from '../../constants/config';
 
+const productByIdQuery = `SELECT p.id, p.title, p.description, p.image_url as "imageUrl", p.price, s.count
+                          FROM products p
+                                   LEFT JOIN stocks s on p.id = s.product_id
+                          WHERE p.id = $1`;
+
 export async function getProductByIdFromDB(id: string): Promise<Product> {
   const client = new Client(DB_CONFIG);
 
@@ -9,10 +14,7 @@ export async function getProductByIdFromDB(id: string): Promise<Product> {
 
   try {
     const result = await client.query(
-        `SELECT p.id, p.title, p.description, p.image_url, p.price, s.count
-         FROM products p
-                  LEFT JOIN stocks s on p.id = s.product_id
-         WHERE p.id = $1`,
+      productByIdQuery,
       [id]
     );
 
@@ -33,7 +35,7 @@ export async function getProductsFromDB(): Promise<Product[]> {
 
   try {
     const result = await client.query(
-        `SELECT p.id, p.title, p.description, p.image_url, p.price, s.count
+        `SELECT p.id, p.title, p.description, p.image_url as "imageUrl", p.price, s.count
          FROM products p
                   LEFT JOIN stocks s on p.id = s.product_id`
     );
@@ -47,20 +49,35 @@ export async function getProductsFromDB(): Promise<Product[]> {
   }
 }
 
-export async function createProductInDB(title: string, description: string, price: number, count: number): Promise<Product> {
+export async function createProductInDB(title: string, description: string, price: number, imageUrl: string, count: number): Promise<Product> {
   const client = new Client(DB_CONFIG);
-
-  const imageUrl = 'https://source.unsplash.com/random';
 
   await client.connect();
 
   try {
     await client.query('BEGIN');
 
-    const insertQuery = 'INSERT INTO products(title, description, image_url, price) VALUES ($1, $2, $3, $4)';
-    return await client.query(insertQuery, [title, description, imageUrl, price]) as unknown as Product;
+    const insertProductQuery = 'INSERT INTO products(title, description, image_url, price) VALUES ($1, $2, $3, $4) RETURNING id';
+    const insertProductResult = await client.query(insertProductQuery, [title, description, imageUrl, price]);
+    const productId = insertProductResult?.rows[0]?.id;
+
+    const insertStockQuery = 'INSERT INTO stocks(product_id, count) VALUES ($1, $2)';
+    await client.query(insertStockQuery, [productId, count]);
+
+    const result = await client.query(productByIdQuery, [productId]);
+    const [product] = result.rows;
+
+    if (!product) {
+      throw 'Transaction Failed';
+    }
+
+    await client.query('COMMIT');
+
+    return product;
   } catch (e) {
     console.log(`Failed to CREATE Product in DB : `, e);
+    await client.query('ROLLBACK');
+
     throw e;
   } finally {
     await client.end();
