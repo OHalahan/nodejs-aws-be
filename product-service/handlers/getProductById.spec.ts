@@ -9,12 +9,12 @@ describe('getProductById handler', () => {
     it('should return product', async () => {
       const mockEvent = createEvent('aws:apiGateway', {
         pathParameters: {
-          id: '1',
+          id: 'efaf5d0a-df8d-4acc-bfe7-0f8977c17eb0',
         },
       } as any);
 
       const product: Product = {
-        id: 1,
+        id: 'efaf5d0a-df8d-4acc-bfe7-0f8977c17eb0',
         description: 'test',
         title: 'test',
         imageUrl: 'test.com',
