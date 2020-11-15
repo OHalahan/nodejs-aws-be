@@ -1,6 +1,6 @@
 import {APIGatewayProxyEvent, APIGatewayProxyHandler} from 'aws-lambda';
 import {productsService} from '../shared/services/products';
-import {RESPONSE} from '../shared/constants/responses';
+import {RESPONSE} from '../../shared/constants/responses';
 
 export const getProductById = async (event: APIGatewayProxyEvent) => {
   try {

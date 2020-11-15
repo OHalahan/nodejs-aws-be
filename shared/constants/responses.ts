@@ -6,6 +6,11 @@ export const RESPONSE = {
     statusCode: 200,
     body: JSON.stringify(data)
   }),
+  _202: (data = {}) => ({
+    headers: HEADERS,
+    statusCode: 200,
+    body: JSON.stringify(data)
+  }),
   _400: (data = {}) => ({
     headers: HEADERS,
     statusCode: 400,

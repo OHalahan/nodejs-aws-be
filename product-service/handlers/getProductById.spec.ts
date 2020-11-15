@@ -2,7 +2,7 @@ import createEvent from '@serverless/event-mocks';
 import { productsService } from '../shared/services/products';
 import { Product } from '../shared/models/product';
 import { getProductById } from './getProductById';
-import {RESPONSE} from '../shared/constants/responses';
+import {RESPONSE} from '../../shared/constants/responses';
 
 describe('getProductById handler', () => {
   describe('id is present', () => {
