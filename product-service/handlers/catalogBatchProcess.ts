@@ -1,17 +1,16 @@
 import {SQSEvent, SQSHandler} from 'aws-lambda';
-import * as AWS from 'aws-sdk';
 
-import {productsService} from '../shared/services/products';
+import {notifyService, productsService} from '../shared/services/products';
 
 export const catalogBatchProcess = async (event: SQSEvent) => {
   try {
     const imageUrl = 'https://source.unsplash.com/random'; // hardcoded for now
 
-    const sns = new AWS.SNS({region: 'eu-west-1'});
     const products = event.Records.map(({body}) => JSON.parse(body));
 
     console.log('NEW PRODUCTS ARRIVED: ', event.Records);
 
+    // Create an array of DB creation promises
     const asyncProductCreation = products
       // Filter out incorrect products
       .filter(pr => {
@@ -42,7 +41,6 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
 
         return true;
       })
-      // Create an array of DB creation promises
       .map(({title, description, price, count}) => {
         return productsService.createProductInDB(title, description, +price, imageUrl, +count);
       });
@@ -59,11 +57,7 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
         return `${product.id}: ${product.title} (price: ${product.price}$, count: ${product.count})`;
       }).join('\n');
 
-      await sns.publish({
-        Subject: `New Product(s) uploaded to the catalog!`,
-        Message: message,
-        TopicArn: process.env.SNS_TOPIC_ARN
-      }).promise();
+      await notifyService.sendEmail(message);
     }
   } catch (err) {
     console.log('ERR: ', err);
