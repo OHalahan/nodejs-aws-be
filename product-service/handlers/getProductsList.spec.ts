@@ -1,7 +1,7 @@
 import {productsService} from '../shared/services/products';
 import {Product} from '../shared/models/product';
 import {getProductsList} from './getProductsList';
-import {RESPONSE} from '../shared/constants/responses';
+import {RESPONSE} from '../../shared/constants/responses';
 import createEvent from '@serverless/event-mocks';
 
 const mockEvent = createEvent('aws:apiGateway', {
