@@ -28,12 +28,16 @@ const MOCK_PRODUCTS_INVALID = [
   }
 ];
 
-const MOCK_NOTIFICATION_MESSAGE = `test-uuid: New Hublot 7 (price: 257500$, count: 3)
-test-uuid: New Hublot 7 (price: 257500$, count: 3)`;
+const MOCK_NOTIFICATION_MESSAGE = `test-uuid: New Hublot 7 (price: $257500, count: 3)
+test-uuid: New Hublot 7 (price: $257500, count: 3)`;
 
 describe('importProductsFile handler', () => {
   describe('products are valid', () => {
     it('should send email notification', async () => {
+      const minPrice = Math.min.apply(
+        null,
+        MOCK_PRODUCTS.map(({price}) => price)
+      );
       const spyEmail = spyOn(notifyService, 'sendEmail');
       spyOn(productsService, 'createProductInDB').and.returnValue({
         id: 'test-uuid',
@@ -50,7 +54,7 @@ describe('importProductsFile handler', () => {
 
       await catalogBatchProcess(mockEvent);
 
-      expect(spyEmail).toHaveBeenCalledWith(MOCK_NOTIFICATION_MESSAGE);
+      expect(spyEmail).toHaveBeenCalledWith(MOCK_NOTIFICATION_MESSAGE, minPrice);
     });
   });
 

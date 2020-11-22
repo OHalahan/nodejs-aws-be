@@ -9,7 +9,9 @@ const serverlessConfiguration: Serverless = {
     webpack: {
       webpackConfig: './webpack.config.js',
       includeModules: true
-    }
+    },
+    snsRegular: String(process.env.SNS_REGULAR),
+    snsSuspected: String(process.env.SNS_SUSPECTED)
   },
   // Add the serverless-webpack plugin
   plugins: [
@@ -77,6 +79,17 @@ const serverlessConfiguration: Serverless = {
           Endpoint: 'oleksandr.halahan@gmail.com',
           Protocol: 'email',
           TopicArn: {Ref: 'SNSTopic'}
+        }
+      },
+      SNSSubscriptionLowPrice: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: 'nodejsaws.olhal@gmail.com',
+          Protocol: 'email',
+          TopicArn: {Ref: 'SNSTopic'},
+          FilterPolicy: JSON.stringify({
+            minPrice: [{numeric: ['<=', 20000]}]
+          })
         }
       }
     },

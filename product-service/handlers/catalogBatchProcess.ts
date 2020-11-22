@@ -54,10 +54,17 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
       console.log('CREATED PRODUCTS: ', createdProducts);
 
       const message = createdProducts.map((product) => {
-        return `${product.id}: ${product.title} (price: ${product.price}$, count: ${product.count})`;
+        return `${product.id}: ${product.title} (price: $${product.price}, count: ${product.count})`;
       }).join('\n');
 
-      await notifyService.sendEmail(message);
+      // Detect smallest price in batch for SNS Filter Policy detection
+      await notifyService.sendEmail(
+        message,
+        Math.min.apply(
+          null,
+          products.map(({price}) => price)
+        )
+      );
     }
   } catch (err) {
     console.log('ERR: ', err);
