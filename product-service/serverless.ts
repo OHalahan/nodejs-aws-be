@@ -30,7 +30,67 @@ const serverlessConfiguration: Serverless = {
       PG_PORT: process.env.PG_PORT,
       PG_DATABASE: process.env.PG_DATABASE,
       PG_USERNAME: process.env.PG_USERNAME,
-      PG_PASSWORD: process.env.PG_PASSWORD
+      PG_PASSWORD: process.env.PG_PASSWORD,
+      SNS_TOPIC_ARN: {
+        Ref: 'SNSTopic'
+      }
+    },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: ['sns:Publish'],
+        Resource: [{Ref: 'SNSTopic'}]
+      },
+      /**
+       * Just to confront task assignment; there is no need in the policy below
+       * serverless adds the policy automatically because
+       *
+       * SQS Queue is configured as an event source for catalogBatchProcess
+       */
+      {
+        Effect: 'Allow',
+        Action: ['sqs:DeleteMessage', 'sqs:ReceiveMessage'],
+        Resource: [{
+          'Fn::GetAtt': ['SQSQueue', 'Arn']
+        }]
+      }
+    ]
+  },
+  resources: {
+    Resources: {
+      SQSQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'catalogItemsQueue',
+          ReceiveMessageWaitTimeSeconds: 20
+        }
+      },
+      SNSTopic: {
+        Type: 'AWS::SNS::Topic',
+        Properties: {
+          TopicName: 'create-product-topic'
+        }
+      },
+      SNSSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: 'oleksandr.halahan@gmail.com',
+          Protocol: 'email',
+          TopicArn: {Ref: 'SNSTopic'}
+        }
+      }
+    },
+    Outputs: {
+      SQSQueueUrl: {
+        Value: {
+          Ref: 'SQSQueue'
+        }
+      },
+      SQSQueueArn: {
+        Value: {
+          'Fn::GetAtt': ['SQSQueue', 'Arn']
+        }
+      }
     }
   },
   functions: {
@@ -64,7 +124,18 @@ const serverlessConfiguration: Serverless = {
         {
           http: {
             method: 'post',
-            path: 'products',
+            path: 'products'
+          }
+        }
+      ]
+    },
+    catalogBatchProcess: {
+      handler: 'handler.catalogBatchProcessHandler',
+      events: [
+        {
+          sqs: {
+            batchSize: 5,
+            arn: {'Fn::GetAtt': ['SQSQueue', 'Arn']}
           }
         }
       ]

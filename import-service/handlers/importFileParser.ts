@@ -1,6 +1,7 @@
 import {S3Event, S3Handler} from 'aws-lambda';
 import 'source-map-support/register';
 import * as AWS from 'aws-sdk';
+import {SQS} from 'aws-sdk';
 import csv from 'csv-parser';
 import util from 'util';
 import stream from 'stream';
@@ -8,6 +9,7 @@ import stream from 'stream';
 import {AWS_REGION, BUCKET_NAME, SOURCE_DIR, TARGET_DIR} from '../constants';
 
 export const importFileParser = async (event: S3Event) => {
+  const sqs = new AWS.SQS({region: AWS_REGION});
   const s3 = new AWS.S3({region: AWS_REGION});
   const pipeline = util.promisify(stream.pipeline);
 
@@ -20,7 +22,14 @@ export const importFileParser = async (event: S3Event) => {
         Key: record.s3.object.key
       }).createReadStream();
 
-      await pipeline(s3Stream, csv(), new LogEachRow());
+      await pipeline(
+        s3Stream,
+        csv({
+          // cast numeric values to Number
+          mapValues: ({value}) => isNaN(value) ? value : Number(value)
+        }),
+        new PassToSQS(sqs)
+      );
 
       const targetKey = record.s3.object.key.replace(SOURCE_DIR, TARGET_DIR);
       console.log(`START MOVING FROM: ${BUCKET_NAME}/${record.s3.object.key}`);
@@ -48,14 +57,33 @@ export const importFileParser = async (event: S3Event) => {
   return;
 };
 
-class LogEachRow extends stream.Transform {
-  constructor() {
+class PassToSQS extends stream.Transform {
+  sqs: SQS;
+
+  constructor(sqs: SQS) {
     super({objectMode: true});
+
+    this.sqs = sqs;
   }
 
   _transform(row, _enc, callback) {
-    console.log('ROW: ', row);
-    callback(null, row);
+    console.log('PROCESSING ROW: ', row);
+
+    this.sqs.sendMessage({
+      QueueUrl: process.env.SQS_URL,
+      MessageBody: JSON.stringify(row)
+    }, (err) => {
+      if (err) {
+        console.log('ERR: ', err);
+        return callback(err);
+      }
+
+      console.log(`${row.title} is sent to SQS queue`);
+
+      return callback(null, row);
+    });
+
+    return callback(null, row);
   }
 }
 
