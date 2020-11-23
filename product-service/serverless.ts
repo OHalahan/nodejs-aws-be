@@ -44,9 +44,8 @@ const serverlessConfiguration: Serverless = {
         Resource: [{Ref: 'SNSTopic'}]
       },
       /**
-       * Just to confront task assignment; there is no need in the policy below
+       * Just to meet task requirements; there is no need in the policy below
        * serverless adds the policy automatically because
-       *
        * SQS Queue is configured as an event source for catalogBatchProcess
        */
       {

@@ -8,9 +8,11 @@ import stream from 'stream';
 
 import {AWS_REGION, BUCKET_NAME, SOURCE_DIR, TARGET_DIR} from '../constants';
 
+const region = {region: AWS_REGION};
+
 export const importFileParser = async (event: S3Event) => {
-  const sqs = new AWS.SQS({region: AWS_REGION});
-  const s3 = new AWS.S3({region: AWS_REGION});
+  const sqs = new AWS.SQS(region);
+  const s3 = new AWS.S3(region);
   const pipeline = util.promisify(stream.pipeline);
 
   console.log('RECEIVED RECORDS: ', event.Records);
