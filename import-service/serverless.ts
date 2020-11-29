@@ -71,6 +71,70 @@ const serverlessConfiguration: Serverless = {
             ]
           }
         }
+      },
+      GatewayResponseDEFAULT4XX: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': '\'*\'',
+            'gatewayresponse.header.Access-Control-Allow-Headers': '\'*\''
+          },
+          ResponseType: 'DEFAULT_4XX',
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi'
+          },
+          ResponseTemplates: {
+            'application/json': '{"data": $context.error.messageString}'
+          }
+        }
+      },
+      GatewayResponseAccessDenied: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': '\'*\'',
+            'gatewayresponse.header.Access-Control-Allow-Headers': '\'*\''
+          },
+          ResponseType: 'ACCESS_DENIED',
+          ResponseTemplates: {
+            'application/json': '{"message": $context.error.messageString}'
+          },
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi'
+          }
+        }
+      },
+      GatewayResponseUnauthorized: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': '\'*\'',
+            'gatewayresponse.header.Access-Control-Allow-Headers': '\'*\''
+          },
+          ResponseType: 'UNAUTHORIZED',
+          ResponseTemplates: {
+            'application/json': '{"message": $context.error.messageString}'
+          },
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi'
+          }
+        }
+      },
+      GatewayResponseDEFAULT5XX: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': '\'*\'',
+            'gatewayresponse.header.Access-Control-Allow-Headers': '\'*\''
+          },
+          ResponseType: 'DEFAULT_5XX',
+          ResponseTemplates: {
+            'application/json': '{"data": $context.error.messageString}'
+          },
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi'
+          }
+        }
       }
     }
   },
@@ -83,6 +147,13 @@ const serverlessConfiguration: Serverless = {
             method: 'get',
             path: 'import',
             cors: true,
+            authorizer: {
+              name: 'basicAuthorizer',
+              arn: '${cf:authorization-service-${self:provider.stage}.basicAuthorizerArn}',
+              resultTtlInSeconds: 0,
+              identitySource: 'method.request.header.Authorization',
+              type: 'token'
+            },
             request: {
               parameters: {
                 querystrings: {
