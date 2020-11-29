@@ -15,25 +15,30 @@ export const basicAuthorize = async (event: APIGatewayAuthorizerEvent): Promise<
 
     const [authType, encodedCreds] = authorizationToken.split(' ');
 
-    if (authType !== 'Basic') {
-      return Promise.reject('Unauthorized');
-    }
-
-    const [username, password] = Buffer.from(encodedCreds, 'base64')
-      .toString('utf-8')
-      .split(':');
+    console.log('AUTH TYPE: ', authType);
+    console.log('ENCODED CREDENTIALS: ', encodedCreds);
 
     let effect = 'Allow';
+    let username = '';
+    let password = '';
+
+    if (authType && encodedCreds) {
+      [username, password] = Buffer.from(encodedCreds, 'base64')
+        .toString('utf-8')
+        .split(':');
+
+      if (
+        username !== IMPORT_USERNAME ||
+        password !== IMPORT_PASSWORD
+      ) {
+        effect = 'Deny';
+      }
+    } else {
+      effect = 'Deny';
+    }
 
     console.log('DECODED USERNAME: ', username);
     console.log('DECODED PASSWORD: ', password);
-
-    if (
-      username !== IMPORT_USERNAME ||
-      password !== IMPORT_PASSWORD
-    ) {
-      effect = 'Deny';
-    }
 
     const policy = generatePolicy(encodedCreds, effect, resource);
 
