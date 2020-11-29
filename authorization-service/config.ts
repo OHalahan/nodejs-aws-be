@@ -1,2 +1,2 @@
-export const USERNAME = process.env.USERNAME;
-export const PASSWORD = process.env.PASSWORD;
+export const IMPORT_USERNAME = process.env.IMPORT_USERNAME;
+export const IMPORT_PASSWORD = process.env.IMPORT_PASSWORD;

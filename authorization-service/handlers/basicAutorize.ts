@@ -1,5 +1,5 @@
 import {APIGatewayAuthorizerEvent, APIGatewayAuthorizerHandler, APIGatewayAuthorizerResult} from 'aws-lambda';
-import {PASSWORD, USERNAME} from '../config';
+import {IMPORT_PASSWORD, IMPORT_USERNAME} from '../config';
 
 export const basicAuthorize = async (event: APIGatewayAuthorizerEvent): Promise<APIGatewayAuthorizerResult> => {
   console.log('event: ', event);
@@ -25,9 +25,12 @@ export const basicAuthorize = async (event: APIGatewayAuthorizerEvent): Promise<
 
     let effect = 'Allow';
 
+    console.log('DECODED USERNAME: ', username);
+    console.log('DECODED PASSWORD: ', password);
+
     if (
-      username !== USERNAME ||
-      password !== PASSWORD
+      username !== IMPORT_USERNAME ||
+      password !== IMPORT_PASSWORD
     ) {
       effect = 'Deny';
     }
